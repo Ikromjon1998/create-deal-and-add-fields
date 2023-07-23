@@ -31,7 +31,7 @@ app.post("/", function (req, res) {
 });
 
 app.get("/callback", async function (req, res) {
-    const apiClient = pipedrive.ApiClient.instance;
+    const apiClient = new pipedrive.ApiClient();
 
     let oauth2 = apiClient.authentications.oauth2;
     oauth2.clientId = process.env.CLIENT_ID;
