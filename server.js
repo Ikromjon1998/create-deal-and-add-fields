@@ -37,6 +37,7 @@ app.get("/", function (req, res) {
 app.post("/", function (req, res) {
     // Get the form data from req.body
     oauth2.accessToken = req.session.accessToken;
+    oauth2.refreshToken = req.session.refreshToken;
     const formData = req.body;
     // Validate the form data
     const errors = validateForm(formData);
@@ -88,6 +89,7 @@ app.get("/callback", async function (req, res) {
             const promise = await apiClient.authorize(req.query.code);
             promise.then(() => {
                 req.session.accessToken = apiClient.authentications.oauth2.accessToken;
+                req.session.refreshToken = apiClient.authentications.oauth2.refreshToken;
                 return res.redirect('/');
             }, (exception) => {
                 // error occurred, exception will be of type src/exceptions/OAuthProviderException
