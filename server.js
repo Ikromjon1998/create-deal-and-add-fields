@@ -24,6 +24,8 @@ app.use(express.json());
 app.use('/', express.static("public"));
 
 app.get("/", function (req, res) {
+    console.log('Query----------', req.query);
+    console.log('Body-----------', req.body);
     res.sendFile(__dirname + "/public/index.html");
 });
 
@@ -55,7 +57,7 @@ app.get('/alldeals', async (req, res) => {
 
         res.send(deals);
     } else {
-        const authUrl = apiClient.buildAuthorizationUrl();;
+        const authUrl = apiClient.buildAuthorizationUrl();
 
         res.redirect(authUrl);
     }
