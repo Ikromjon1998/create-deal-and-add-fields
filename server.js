@@ -4,6 +4,7 @@ const express = require("express");
 require("dotenv").config();
 
 const app = express();
+let token;
 app.use(express.json());
 
 app.use('/', express.static("public"));
@@ -41,7 +42,8 @@ app.get("/callback", async function (req, res) {
     const authUrl = apiClient.buildAuthorizationUrl();
     if (req.query.code) {
         try {
-            const token = await apiClient.authorize(req.query.code);
+            token = await apiClient.authorize(req.query.code);
+            console.log(token);
             console.log("Successful Auth ✅");
             return res.status(200).redirect("/");
         } catch (error) {
