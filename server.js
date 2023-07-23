@@ -90,7 +90,6 @@ app.get("/callback", async function (req, res) {
             const promise = await apiClient.authorize(req.query.code);
             promise.then(() => {
                 req.session.accessToken = apiClient.authentications.oauth2.accessToken;
-                refreshToken = apiClient.authentications.oauth2.refreshToken;
                 return res.redirect('/');
             }, (exception) => {
                 // error occurred, exception will be of type src/exceptions/OAuthProviderException
