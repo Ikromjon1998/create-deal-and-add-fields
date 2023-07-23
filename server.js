@@ -11,12 +11,15 @@ app.use(cookieSession({
     name: 'session',
     keys: ['key1']
 }));
+
 const pipedrive = require("pipedrive");
 const apiClient = new pipedrive.ApiClient();
 let oauth2 = apiClient.authentications.oauth2;
 oauth2.clientId = process.env.CLIENT_ID;
 oauth2.clientSecret = process.env.CLIENT_SECRET;
 oauth2.redirectUri = `https://${process.env.PROJECT_DOMAIN}.onrender.com/callback`;
+
+let api_key = apiClient.authentications['api_key'];
 
 app.use(express.json());
 
@@ -29,8 +32,11 @@ app.get("/", function (req, res) {
     res.sendFile(__dirname + "/public/index.html");
 });
 
+
+
 app.post("/", function (req, res) {
     // Get the form data from req.body
+    oauth2.accessToken = req.session.accessToken;
     const formData = req.body;
     // Validate the form data
     const errors = validateForm(formData);
@@ -41,9 +47,22 @@ app.post("/", function (req, res) {
     } else {
         // If the form data is valid, process it and perform further actions
         // For example, you can save the data to a database or send it to an external API
-        console.log('After validation: ',formData);
-        // Return a success response if everything is fine
-        return res.status(200).json({ message: "Form submitted successfully" });
+        let apiInstance = new pipedrive.DealFieldsApi(apiClient);
+
+        let fieldCreateRequest = pipedrive.FieldCreateRequest.constructFromObject({
+            name: formData.fieldName, // Field name
+            options: formData.options, // Field options if any
+            // Add more properties as needed, refer Pipedrive docs for all possible properties
+        });
+
+        apiInstance.addDealField(fieldCreateRequest).then((data) => {
+            console.log('API called successfully. Returned data: ' + data);
+            return res.status(200).json({ message: "Form submitted successfully", data });
+        }, (error) => {
+            console.error(error);
+            // Return an error response to client
+            return res.status(500).json({message: "Error occurred while adding deal field"});
+        });
     }
 });
 
