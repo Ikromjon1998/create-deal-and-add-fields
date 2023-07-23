@@ -94,28 +94,13 @@ function validateForm(formData) {
     if (!formData.city) {
         errors.push("City is required");
     }
-    if (!formData.state) {
-        errors.push("State is required");
-    }
     if (!formData.zipCode) {
         errors.push("Zip Code is required");
-    }
-    if (!formData.area) {
-        errors.push("Area is required");
     }
 
     // Scheduled
     if (!formData.startDate) {
         errors.push("Start Date is required");
-    }
-    if (!formData.startTime) {
-        errors.push("Start Time is required");
-    }
-    if (!formData.endTime) {
-        errors.push("End Time is required");
-    }
-    if (!formData.testSelect) {
-        errors.push("Test Select is required");
     }
 
     return errors;
