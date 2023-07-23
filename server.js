@@ -38,6 +38,7 @@ app.get("/callback", async function (req, res) {
     oauth2.clientSecret = process.env.CLIENT_SECRET;
     oauth2.redirectUri = `https://${process.env.PROJECT_DOMAIN}.onrender.com/callback`;
 
+    const authUrl = apiClient.buildAuthorizationUrl();
     if (req.query.code) {
         try {
             const token = await apiClient.authorize(req.query.code);
