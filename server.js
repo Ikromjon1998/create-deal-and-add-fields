@@ -36,7 +36,7 @@ app.get("/callback", async function (req, res) {
     let oauth2 = apiClient.authentications.oauth2;
     oauth2.clientId = process.env.CLIENT_ID;
     oauth2.clientSecret = process.env.CLIENT_SECRET;
-    oauth2.redirectUri = `https://${process.env.PROJECT_DOMAIN}.glitch.me/callback`;
+    oauth2.redirectUri = `https://${process.env.PROJECT_DOMAIN}.onrender.com/callback`;
 
     if (req.query.code) {
         try {
@@ -56,7 +56,7 @@ app.get("/callback", async function (req, res) {
 app.listen(3000, function () {
     const d = process.env.PROJECT_DOMAIN;
     console.log(
-        `🟢 App is running \nApp Panel URL: https://${d}.glitch.me/\nCallback URL: https://${d}.glitch.me/callback`
+        `🟢 App is running \nApp Panel URL: https://${d}.onrender.com/\nCallback URL: https://${d}.onrender.com/callback`
     );
 });
 
