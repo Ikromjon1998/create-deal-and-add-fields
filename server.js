@@ -55,7 +55,7 @@ app.post("/", async function (req, res) {
     const formData = req.body;
     // Validate the form data
     const errors = validateForm(formData);
-    let arr = [];
+    let arr = {};
 
     if (errors.length > 0) {
         // If there are validation errors, return them to the client
@@ -78,9 +78,8 @@ app.post("/", async function (req, res) {
                     name: name,
                     field_type: 'text'
                 });
-                console.log('response', response, typeof response);
-                const responseData = JSON.parse(response["data"]);
-                arr.push({ [responseData.id]: responseData.name });
+
+                arr[response.data.data.id] = response.data.data.name;
             }
             console.log('DealField added:', arr);
             console.log('Custom field was added successfully!');
