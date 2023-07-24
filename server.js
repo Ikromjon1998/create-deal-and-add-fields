@@ -38,7 +38,7 @@ app.get("/", function (req, res) {
 app.post("/", function (req, res) {
     // Get the form data from req.body
     oauth2.accessToken = req.session.accessToken;
-    oauth2.refreshToken = refreshToken;
+    oauth2.refreshToken = req.session.refreshToken;
     const formData = req.body;
     // Validate the form data
     const errors = validateForm(formData);
@@ -51,11 +51,7 @@ app.post("/", function (req, res) {
         // For example, you can save the data to a database or send it to an external API
         let apiInstance = new pipedrive.DealFieldsApi(apiClient);
 
-        let fieldCreateRequest = pipedrive.FieldCreateRequest.constructFromObject({
-            name: formData.fieldName, // Field name
-            options: formData.options, // Field options if any
-            // Add more properties as needed, refer Pipedrive docs for all possible properties
-        });
+        let fieldCreateRequest = pipedrive.FieldCreateRequest.constructFromObject(formData);
 
         apiInstance.addDealField(fieldCreateRequest).then((data) => {
             console.log('API called successfully. Returned data: ' + data);
@@ -85,15 +81,22 @@ app.get('/alldeals', async (req, res) => {
 });
 
 app.get("/callback", async function (req, res) {
+    const apiClient = new pipedrive.ApiClient();
+
+    let oauth2 = apiClient.authentications.oauth2;
+    oauth2.clientId = process.env.CLIENT_ID;
+    oauth2.clientSecret = process.env.CLIENT_SECRET;
+    oauth2.redirectUri = `https://${process.env.PROJECT_DOMAIN}.onrender.com/callback`;
+
+    const authUrl = apiClient.buildAuthorizationUrl();
     if (req.query.code) {
         try {
-            const promise = await apiClient.authorize(req.query.code);
-            promise.then(() => {
-                req.session.accessToken = apiClient.authentications.oauth2.accessToken;
-                return res.redirect('/');
-            }, (exception) => {
-                // error occurred, exception will be of type src/exceptions/OAuthProviderException
-            });
+            token = await apiClient.authorize(req.query.code);
+            req.session.accessToken = token.accessToken;
+            req.session.refreshToken = token.refreshToken;
+            console.log(token.token_type);
+            console.log("Successful Auth ✅");
+            return res.status(200).redirect("/");
         } catch (error) {
             console.error("Wob, Wob, Wobb 🙁");
             console.error(error);
@@ -103,7 +106,6 @@ app.get("/callback", async function (req, res) {
         return res.status(400);
     }
 });
-
 app.listen(3000, function () {
     const d = process.env.PROJECT_DOMAIN;
     console.log(
