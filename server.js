@@ -28,7 +28,7 @@ app.use(express.json());
 app.use('/', express.static("public"));
 
 
-async function addNewCustomDealField(name: string, type: string)  {
+async function addNewCustomDealField(name, type)  {
     try {
         console.log('Sending request...');
 
