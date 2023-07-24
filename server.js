@@ -78,7 +78,10 @@ app.post("/", async function (req, res) {
                     name: name,
                     field_type: 'text'
                 });
-                arr.push({ [response.data.id]: response.data.name });
+
+                const responseData = JSON.parse(response.data);
+                console.log('response', response, typeof response);
+                arr.push({ [responseData.id]: responseData.name });
             }
             console.log('DealField added:', arr);
             console.log('Custom field was added successfully!');
