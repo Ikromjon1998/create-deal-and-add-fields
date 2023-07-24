@@ -38,7 +38,7 @@ app.get("/", function (req, res) {
 app.post("/", function (req, res) {
     // Get the form data from req.body
     oauth2.accessToken = req.session.accessToken;
-    oauth2.refreshToken = req.session.refreshToken;
+    oauth2.refreshToken = refreshToken;
     const formData = req.body;
     // Validate the form data
     const errors = validateForm(formData);
@@ -64,22 +64,6 @@ app.post("/", function (req, res) {
     }
 });
 
-app.get('/alldeals', async (req, res) => {
-    if (req.session.accessToken !== null && req.session.accessToken !== undefined) {
-        // token is already set in the session
-        // now make API calls as required
-        // client will automatically refresh the token when it expires and call the token update callback
-        const api = new pipedrive.DealsApi(apiClient);
-        const deals = await api.getDeals();
-
-        res.send(deals);
-    } else {
-        const authUrl = apiClient.buildAuthorizationUrl();
-
-        res.redirect(authUrl);
-    }
-});
-
 app.get("/callback", async function (req, res) {
     const apiClient = new pipedrive.ApiClient();
 
@@ -93,7 +77,7 @@ app.get("/callback", async function (req, res) {
         try {
             token = await apiClient.authorize(req.query.code);
             req.session.accessToken = token.accessToken;
-            req.session.refreshToken = token.refreshToken;
+            refreshToken = token.refreshToken;
             console.log(token.token_type);
             console.log("Successful Auth ✅");
             return res.status(200).redirect("/");
