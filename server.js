@@ -15,12 +15,6 @@ app.use(cookieSession({
 const pipedrive = require("pipedrive");
 const {raw} = require("express");
 const apiClient = new pipedrive.ApiClient();
-let oauth2 = apiClient.authentications.oauth2;
-oauth2.clientId = process.env.CLIENT_ID;
-oauth2.clientSecret = process.env.CLIENT_SECRET;
-oauth2.redirectUri = `https://${process.env.PROJECT_DOMAIN}.onrender.com/callback`;
-
-let refreshToken;
 
 app.use(express.json());
 
@@ -58,10 +52,10 @@ app.get("/", function (req, res) {
 
 app.post("/", async function (req, res) {
     // Get the form data from req.body
-    apiClient.authentications.api_key.apiKey = process.env.PIPEDRIVE_API_KEY;
     const formData = req.body;
     // Validate the form data
     const errors = validateForm(formData);
+    let arr = [];
 
     if (errors.length > 0) {
         // If there are validation errors, return them to the client
@@ -71,14 +65,23 @@ app.post("/", async function (req, res) {
         // For example, you can save the data to a database or send it to an external API
 
         try {
+            const axios = require('axios');
+            console.log('Sending request...');
+
             const api = new pipedrive.DealFieldsApi(apiClient);
 
             // Iterate over the formData and add each field as a DealField
             for (const [name, value] of Object.entries(formData)) {
-                const response = await addNewCustomDealField(name, 'text');
-                console.log('DealField added:', response);
-            }
 
+
+                const response = await axios.post('https://ikromcompany-sandbox.pipedrive.com/api/v1/dealFields?api_token=' + process.env.PIPEDRIVE_API_KEY, {
+                    name: name,
+                    type: 'text'
+                });
+                arr.push({ [response.data.id]: response.data.name });
+            }
+            console.log('DealField added:', arr);
+            console.log('Custom field was added successfully!');
         } catch (err) {
             const errorToLog = err.context?.body || err;
 
@@ -98,7 +101,7 @@ app.get("/callback", async function (req, res) {
     const authUrl = apiClient.buildAuthorizationUrl();
     if (req.query.code) {
         try {
-            token = await apiClient.authorize(req.query.code);
+            token = await apiClient.authorize(req.query.code); {access_token, refresh_token ...}
             req.session.accessToken = token.accessToken;
             refreshToken = token.refreshToken;
             oauth2.refreshToken = token.refreshToken;
