@@ -79,10 +79,12 @@ app.post("/", async function (req, res) {
                     field_type: 'text'
                 });
 
-                arr[response.data.data.id] = response.data.data.name;
+                // I would like to use update the fileds value with this fild's id
+                // arr[response.data.data.id] = response.data.data.name;
             }
-            console.log('DealField added:', arr);
-            console.log('Custom field was added successfully!');
+
+            const referer = req.headers.referer;
+            res.redirect(referer);
         } catch (err) {
             const errorToLog = err.context?.body || err;
 
