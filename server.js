@@ -21,27 +21,6 @@ app.use(express.json());
 
 app.use('/', express.static("public"));
 
-
-async function addNewCustomDealField(name, type)  {
-    try {
-        console.log('Sending request...');
-
-        const api = new pipedrive.DealFieldsApi(apiClient);
-
-        const response = await api.addDealField({
-            name: name,
-            field_type: type,
-        });
-
-        console.log('Custom field was added successfully!', response);
-        return response;
-    } catch (err) {
-        const errorToLog = err.context?.body || err;
-
-        console.log('Adding failed', errorToLog);
-        return errorToLog;
-    }
-}
 app.get("/", function (req, res) {
     console.log('Query----------', req.query);
     console.log('Body-----------', req.body);
@@ -73,9 +52,10 @@ app.post("/", async function (req, res) {
             // Iterate over the formData and add each field as a DealField
             for (const [name, value] of Object.entries(formData)) {
 
+                const modifiedName = name.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase());
 
                 const response = await axios.post('https://ikromcompany-sandbox.pipedrive.com/api/v1/dealFields?api_token=' + process.env.PIPEDRIVE_API_KEY, {
-                    name: name,
+                    name: modifiedName,
                     field_type: 'text'
                 });
 
