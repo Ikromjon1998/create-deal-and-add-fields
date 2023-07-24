@@ -82,9 +82,8 @@ app.post("/", async function (req, res) {
                 // I would like to use update the fileds value with this fild's id
                 // arr[response.data.data.id] = response.data.data.name;
             }
-
-            const referer = req.headers.referer;
-            res.redirect(referer);
+            console.log('Request sent successfully');
+            res.redirect('https://www.pipedrive.com/');
         } catch (err) {
             const errorToLog = err.context?.body || err;
 
