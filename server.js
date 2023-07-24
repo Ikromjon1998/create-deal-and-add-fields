@@ -101,11 +101,8 @@ app.get("/callback", async function (req, res) {
     const authUrl = apiClient.buildAuthorizationUrl();
     if (req.query.code) {
         try {
-            token = await apiClient.authorize(req.query.code); {access_token, refresh_token ...}
+            token = await apiClient.authorize(req.query.code);
             req.session.accessToken = token.accessToken;
-            refreshToken = token.refreshToken;
-            oauth2.refreshToken = token.refreshToken;
-            console.log(token);
             console.log("Successful Auth ✅");
             return res.status(200).redirect("/");
         } catch (error) {
