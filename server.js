@@ -102,7 +102,7 @@ app.get("/callback", async function (req, res) {
             req.session.accessToken = token.accessToken;
             refreshToken = token.refreshToken;
             oauth2.refreshToken = token.refreshToken;
-            console.log(token.token_type);
+            console.log(token);
             console.log("Successful Auth ✅");
             return res.status(200).redirect("/");
         } catch (error) {
