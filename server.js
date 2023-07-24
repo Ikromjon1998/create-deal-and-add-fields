@@ -78,9 +78,8 @@ app.post("/", async function (req, res) {
                     name: name,
                     field_type: 'text'
                 });
-
-                const responseData = JSON.parse(response.data);
                 console.log('response', response, typeof response);
+                const responseData = JSON.parse(response["data"]);
                 arr.push({ [responseData.id]: responseData.name });
             }
             console.log('DealField added:', arr);
