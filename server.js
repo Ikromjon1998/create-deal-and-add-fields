@@ -76,7 +76,7 @@ app.post("/", async function (req, res) {
 
                 const response = await axios.post('https://ikromcompany-sandbox.pipedrive.com/api/v1/dealFields?api_token=' + process.env.PIPEDRIVE_API_KEY, {
                     name: name,
-                    type: 'text'
+                    field_type: 'text'
                 });
                 arr.push({ [response.data.id]: response.data.name });
             }
