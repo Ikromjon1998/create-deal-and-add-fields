@@ -13,13 +13,13 @@ app.use(cookieSession({
 }));
 
 const pipedrive = require("pipedrive");
+const {raw} = require("express");
 const apiClient = new pipedrive.ApiClient();
 let oauth2 = apiClient.authentications.oauth2;
 oauth2.clientId = process.env.CLIENT_ID;
 oauth2.clientSecret = process.env.CLIENT_SECRET;
 oauth2.redirectUri = `https://${process.env.PROJECT_DOMAIN}.onrender.com/callback`;
 
-let api_key = apiClient.authentications['api_key'];
 let refreshToken;
 
 app.use(express.json());
@@ -27,6 +27,27 @@ app.use(express.json());
 
 app.use('/', express.static("public"));
 
+
+async function addNewCustomDealField(name: string, type: string)  {
+    try {
+        console.log('Sending request...');
+
+        const api = new pipedrive.DealFieldsApi(apiClient);
+
+        const response = await api.addDealField({
+            name: name,
+            field_type: type,
+        });
+
+        console.log('Custom field was added successfully!', response);
+        return response;
+    } catch (err) {
+        const errorToLog = err.context?.body || err;
+
+        console.log('Adding failed', errorToLog);
+        return errorToLog;
+    }
+}
 app.get("/", function (req, res) {
     console.log('Query----------', req.query);
     console.log('Body-----------', req.body);
@@ -35,32 +56,34 @@ app.get("/", function (req, res) {
 
 
 
-app.post("/", function (req, res) {
+app.post("/", async function (req, res) {
     // Get the form data from req.body
-    oauth2.accessToken = req.session.accessToken;
-    oauth2.refreshToken = refreshToken;
+    apiClient.authentications.api_key.apiKey = process.env.PIPEDRIVE_API_KEY;
     const formData = req.body;
     // Validate the form data
     const errors = validateForm(formData);
 
     if (errors.length > 0) {
         // If there are validation errors, return them to the client
-        return res.status(400).json({ errors });
+        return res.status(400).json({errors});
     } else {
         // If the form data is valid, process it and perform further actions
         // For example, you can save the data to a database or send it to an external API
-        let apiInstance = new pipedrive.DealFieldsApi(apiClient);
 
-        let fieldCreateRequest = pipedrive.FieldCreateRequest.constructFromObject(formData);
+        try {
+            const api = new pipedrive.DealFieldsApi(apiClient);
 
-        apiInstance.addDealField(fieldCreateRequest).then((data) => {
-            console.log('API called successfully. Returned data: ' + data);
-            return res.status(200).json({ message: "Form submitted successfully", data });
-        }, (error) => {
-            console.error(error);
-            // Return an error response to client
-            return res.status(500).json({message: "Error occurred while adding deal field"});
-        });
+            // Iterate over the formData and add each field as a DealField
+            for (const [name, value] of Object.entries(formData)) {
+                const response = await addNewCustomDealField(name, 'text');
+                console.log('DealField added:', response);
+            }
+
+        } catch (err) {
+            const errorToLog = err.context?.body || err;
+
+            console.log('Adding failed', errorToLog);
+        }
     }
 });
 
